@@ -43,11 +43,29 @@ public class main {
 	
 }
 
+class data{
+	private List<node> nodes;
+	private int num_vehicles;
+}
+
+class edge{
+	private int start,end;
+	private double[][] speed;
+}
 
 class node{
 	private int id,clusterId;
 	private int clusterNum;
+	private List<edge> edges;
 	
+	public List<edge> getEdges() {
+		return edges;
+	}
+
+	public void setEdges(List<edge> edges) {
+		this.edges = edges;
+	}
+
 	boolean isBdryPoint;
 
 	public int getId() {
