@@ -28,6 +28,8 @@ public class main {
 				double t2 = cluster1.getTimeBtwBdry().get(timeIndex2).get(bdryPt.getClusterId()).get(otherBdryPt.getClusterId());				
 			}
 		}
+		
+		return 0;
 	}
 	
 	cluster getCluster(node n) {
