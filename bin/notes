@@ -1,0 +1,3 @@
+Points to note:
+	1- cluster numbering should start from 0;
+	2- in getWeightedTime, the clusterNumber is used to differentiate between bdry pts of different clusters.

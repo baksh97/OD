@@ -87,7 +87,7 @@ public class cluster{
 					currentNode = unvisited.peek();
 					for(edge e: n.getEdges()) {
 						node n1 = nodes.get(e.getOtherEnd(n.getId()));
-							
+						int 
 						if(n1.isBdryPoint() && !visited[n1.getClusterId()]){
 							double timeForEdge = e.getTime_from_speed(currentTime);
 							if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
