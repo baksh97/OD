@@ -8,10 +8,10 @@ public class main {
 	int clusterNums[];
 	List<cluster> clusters;
 	
-	static int timeWindow = 10;
+	static double timeWindow = 10, endTime=100;
+	static int num_clusters;
 	
-	
-	double findTimeBetweenNodeAtTime(node n1,node n2, double currentTime) {
+	double findTimeBetweenNodesAtTime(node n1,node n2, double currentTime) {
 		
 		cluster cluster1 = getCluster(n1);
 		cluster cluster2 = getCluster(n2);
@@ -19,60 +19,26 @@ public class main {
 		List<node> bdryPointsCluster1 = cluster1.getBdry_points();
 		List<node> bdryPointsCluster2 = cluster2.getBdry_points();
 		
+		double minTime = Double.POSITIVE_INFINITY;
 		for(node bdryPt: bdryPointsCluster1) {
 			
-//			int timeIndex1 = (int) (currentTime%timeWindow);
-			
-			double t1 = cluster1.getTimeFromNodeToBdry(currentTime,n1.getClusterId(),bdryPt.getClusterId());
-			
-//			int timeIndex2 = (int) ((currentTime+t1)%timeWindow);
-			
+			double t1 = cluster1.getWeightedTime(currentTime,n1.getClusterId(), -1 ,bdryPt.getClusterId(), cluster1.getTimeIntraCluster());
+				
 			for(node otherBdryPt: bdryPointsCluster2) {
-				double t2 = cluster1.getTimeBtwBdry().get(timeIndex2).get(bdryPt.getClusterId()).get(otherBdryPt.getClusterId());				
-			}
-		}
-		
-		return 0;
-	}
-	
-	public void calcDistance_from_node_within_cluster(node n,List<node> nodes){
-		int clusterNum = n.getClusterNum();
-		
-		PriorityQueue<node> unvisited = new PriorityQueue<>(dist_comparator);
-		boolean visited[] = new boolean[]
-		node current = new node();
-		current.setTemp_dist(0);
-		node min_data = null;
-		
-		for(node n1: nodes){
-			if(n1.getId() != n.getId() && n1.getClusterNum()==clusterNum){
-				node temp = new node();
-				temp.setTemp_dist(Double.POSITIVE_INFINITY);
-				unvisited.add(temp);
-			}
-		}
-		
-		while(unvisited.size()!=0){
-			for(edge e: current.getN().getEdges()){
-				int otherEnd = e.getOtherEnd(current.getN().getId());
-				node otherNode = nodes.get(otherEnd);
-				if(otherNode.getClusterNum()==clusterNum){
-					
+				double t2 = cluster1.getWeightedTime(currentTime+t1, bdryPt.getClusterId(),cluster2.getNum() ,otherBdryPt.getClusterId(), cluster1.getTimeBtwBdry());
+				
+				double t3 = cluster2.getWeightedTime(currentTime+t1+t2, otherBdryPt.getClusterId(), -1, n2.getClusterId(), cluster2.getTimeIntraCluster());
+				
+				if(minTime > currentTime + t1 + t2 + t3) {
+					minTime = currentTime + t1  +t2 + t3;
 				}
 			}
 		}
+		
+		return minTime;
 	}
 	
-	public static Comparator<node> dist_comparator = new Comparator<node>() {
-		
-		@Override
-		public int compare(node o1, node o2) {
-			double dist1 = o1.getTemp_dist(),dist2 = o2.getTemp_dist();
-			if(dist1==dist2)
-				return 0;
-			return (o1.getTemp_dist() < o2.getTemp_dist()) ? -1:1;
-		}
-	};
+	
 	
 	cluster getCluster(node n) {
 		int id = n.getId();
@@ -80,7 +46,7 @@ public class main {
 	}
 	
 	public static void main(String args[]) {
-		System.out.println((int)3.444%2);
+		System.out.println(3.444/2);
 //		PriorityQueue<dijsktra_data> queue = new PriorityQueue<>(dist_comparator);
 ////		queue
 //		node[] nodes = new node[6];

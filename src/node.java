@@ -2,17 +2,26 @@ import java.util.List;
 
 public class node
 {
-	private int id,clusterId;
-	private int clusterNum;
-	private List<edge> edges;
-	private double temp_dist;
+	private int id,clusterId;		//id is overall id(from all nodes), clusterId is the Id w.r.t. the cluster
+	private int clusterNum;			//the number of cluster to which it belongs
+	private boolean isBdryPt;		//whether the node is a bdry point or not
+	private List<edge> edges;		//list of edges originating from the no
+	private double tempTime;		//temp variable used to store the time values while applying dijsktra's
 	
-	public double getTemp_dist() {
-		return temp_dist;
+	public boolean isBdryPt() {
+		return isBdryPt;
 	}
 
-	public void setTemp_dist(double positiveInfinity) {
-		this.temp_dist = positiveInfinity;
+	public void setBdryPt(boolean isBdryPt) {
+		this.isBdryPt = isBdryPt;
+	}
+
+	public double getTempTime() {
+		return tempTime;
+	}
+
+	public void setTempTime(double tempTime) {
+		this.tempTime = tempTime;
 	}
 
 	public List<edge> getEdges() {
