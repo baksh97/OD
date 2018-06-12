@@ -25,7 +25,7 @@ public class main {
 			double t1 = cluster1.getWeightedTime(currentTime,n1.getClusterId(), -1 ,bdryPt.getClusterId(), cluster1.getTimeIntraCluster());
 				
 			for(node otherBdryPt: bdryPointsCluster2) {
-				double t2 = cluster1.getWeightedTime(currentTime+t1, bdryPt.getClusterId(),cluster2.getNum() ,otherBdryPt.getClusterId(), cluster1.getTimeBtwBdry());
+				double t2 = cluster1.getWeightedTime(currentTime+t1, bdryPt.getClusterId(),cluster2.getNum() ,otherBdryPt.getClusterId(), cluster1.getTimeBtwBdry()); //this is wrong as number of bdry pts can be different for each cluster
 				
 				double t3 = cluster2.getWeightedTime(currentTime+t1+t2, otherBdryPt.getClusterId(), -1, n2.getClusterId(), cluster2.getTimeIntraCluster());
 				
@@ -45,7 +45,7 @@ public class main {
 		return clusters.get(clusterNums[id]);
 	}
 	
-	public static void main(String args[]) {
+	public static void mains(String args[]) {
 		System.out.println(3.444/2);
 //		PriorityQueue<dijsktra_data> queue = new PriorityQueue<>(dist_comparator);
 ////		queue

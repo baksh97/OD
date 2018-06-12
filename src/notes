@@ -1,3 +1,12 @@
 Points to note:
 	1- cluster numbering should start from 0;
 	2- in getWeightedTime, the clusterNumber is used to differentiate between bdry pts of different clusters.
+	3- for every cluster, bdry points should have the starting ids
+	4- speeds file format:
+		num_intervals	end_time	//start time is assumed 0
+		dist_of_edge speed(1) speed(2) ..... speed(num_intervals)
+		dist_of_edge speed(1) speed(2) ..... speed(num_intervals)
+		.	.	.
+		.	.	.
+		.	.	.
+	
