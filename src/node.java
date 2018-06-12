@@ -5,7 +5,7 @@ public class node
 {
 	private int id,clusterId;		//id is overall id(from all nodes), clusterId is the Id w.r.t. the cluster
 	private int clusterNum;			//the number of cluster to which it belongs
-	private boolean isBdryPt;		//whether the node is a bdry point or not
+	private boolean isBdryPt = false;		//whether the node is a bdry point or not
 	private List<edge> edges = new ArrayList<>();		//list of edges originating from the no
 	private double tempTime;		//temp variable used to store the time values while applying dijsktra's
 //	
@@ -41,8 +41,6 @@ public class node
 		edges.add(e);
 	}
 
-	boolean isBdryPoint;
-
 	public int getId() {
 		return id;
 	}
@@ -67,12 +65,4 @@ public class node
 		this.clusterNum = clusterNum;
 	}
 
-	public boolean isBdryPoint() {
-		return isBdryPoint;
-	}
-
-	public void setBdryPoint(boolean isBdryPoint) {
-		this.isBdryPoint = isBdryPoint;
-	}
-	
 }

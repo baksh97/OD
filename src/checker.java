@@ -37,6 +37,8 @@ public class checker
 			
 			node nodes[] = new node[num_nodes];
 			
+			int num_clusters = Integer.parseInt(br3.readLine());
+			r.setNum_clusters(num_clusters);
 			int count=0;
 			while ((s1 = br1.readLine()) != null) {
 				s3 = br3.readLine();
@@ -62,11 +64,12 @@ public class checker
 					
 					edge e = new edge();
 					e.setStart(count);
-					e.setEnd(Integer.parseInt(neighbour));
+					e.setEnd(Integer.parseInt(neighbour)-1);
 					e.setDist(dist);
 					e.setSpeed(speed);
 					
 					nodes[count].addEdge(e);
+					nodes[count].setId(count);
 					nodes[count].setClusterNum(clusternum);
 				}
 				count++;
@@ -75,6 +78,8 @@ public class checker
 			r.setNodes(Arrays.asList(nodes));
 			
 			System.out.println(r.toString());
+			
+			main.prepareData(r);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -88,13 +93,4 @@ public class checker
 		}
 		
 	}
-	
-	
-//	public static void main(String args[]) {
-//		List<Integer> in = new ArrayList<>(Arrays.asList(1,2,3,4,5,6));
-//		
-//		for(int i: in) {
-//			System.out.println(i);
-//		}
-//	}
 }

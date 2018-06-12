@@ -2,6 +2,16 @@ import java.util.List;
 
 public class data{
 	private int num_nodes,num_edges;
+	private int num_clusters;
+	
+	public void setNum_clusters(int num_clusters) {
+		this.num_clusters = num_clusters;
+	}
+	
+	public int getNum_clusters() {
+		return num_clusters;
+	}
+	
 	public int getNum_edges() {
 		return num_edges;
 	}

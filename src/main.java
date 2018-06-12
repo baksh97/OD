@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -6,7 +7,7 @@ import java.util.PriorityQueue;
 public class main {
 	
 	int clusterNums[];
-	List<cluster> clusters;
+	static List<cluster> clusters;
 	
 	static double timeWindow = 10, endTime=100;
 	static int num_clusters;
@@ -45,21 +46,53 @@ public class main {
 		return clusters.get(clusterNums[id]);
 	}
 	
-	public static void mains(String args[]) {
-		System.out.println(3.444/2);
-//		PriorityQueue<dijsktra_data> queue = new PriorityQueue<>(dist_comparator);
-////		queue
-//		node[] nodes = new node[6];
-//		int[] dists = {3,5,6,4,2,3};
-//		int i=0;
-//		for(node n: nodes){
-////			i++;
-//			dijsktra_data d = new dijsktra_data(n, dists[i++]);
-//			queue.add(d);
+	public static void prepareData(data d) {
+		cluster[] clustersArray = new cluster[d.getNum_clusters()];
+		
+		System.out.println("num clusters: "+d.getNum_clusters());
+		
+		int count=0;
+		for(int i=0;i<d.getNum_clusters();i++) {
+			clustersArray[i] = new cluster();
+			clustersArray[i].setNum(count++);
+		}
+		
+//		for(cluster c: clustersArray) {
+//			System.out.println(c.getNum());
 //		}
-//		
-//		for(dijsktra_data d: queue)
-//			System.out.println(d.toString());
+		
+		for(node n: d.getNodes()) {
+			int clusterNum = n.getClusterNum();
+			cluster c1 = clustersArray[clusterNum];
+
+			for(edge e: n.getEdges()) {				
+				if(d.getNodes().get(e.getOtherEnd(n.getId())).getClusterNum() != clusterNum) {
+					
+					n.setBdryPt(true);
+					c1.addBdryNode(n);
+					break;
+				}
+			}
+			if(!n.isBdryPt()) {
+				c1.addInnerNode(n);
+			}
+		}
+		
+		for(cluster c: clustersArray) {
+			c.setInnerNodes();
+		}
+		
+		clusters = Arrays.asList(clustersArray);
+		
+		
+		for(cluster c: clusters) {
+			System.out.println(c.toString());
+			
+			c.setTimeIntraCluster(d.getNodes());
+		}
+		
+		for(cluster c: clusters)c.setTimeBtwBdry(clusters, d.getNodes());
+		
 	}
 	
 }

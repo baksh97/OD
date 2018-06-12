@@ -5,9 +5,9 @@ import java.util.PriorityQueue;
 
 public class cluster{
 	private int num;
-	private int num_nodes;
-	private List<node> bdryPoints;
-	private List<node> innerNodes;
+	private int num_nodes=0;
+	private List<node> bdryPoints = new ArrayList<>();
+	private List<node> innerNodes = new ArrayList<>();
 	private List<List<List<Double>>> timeIntraCluster;
 	private List<List<List<List<Double>>>> timeBtwBdry;
 
@@ -15,7 +15,7 @@ public class cluster{
 		return num;
 	}
 	
-	public void setNUm(int num) {
+	public void setNum(int num) {
 		this.num = num;
 	}
 	
@@ -23,12 +23,33 @@ public class cluster{
 		return innerNodes;
 	}
 
-	public void setInnerNodes(List<node> innerNodes) {
-		this.innerNodes = innerNodes;
+	public void setInnerNodes() {				//adding the number of bdry points to the ids of each inner point
+		if(innerNodes.isEmpty())return;
+		
+//		System.out.println("number of bdry pts: "+bdryPoints.size() + " and number of inner pts: "+innerNodes.size());
+		
+		int num_bdry = bdryPoints.size();
+		
+		for(node n: innerNodes) {
+			n.setClusterId(n.getClusterId() + num_bdry);
+		}
+		
 	}
 //	public List<List<List<Double>>> getTimeFromBdryToNode() {
 //		return timeFromBdryToNode;
 //	}
+	
+	public void addInnerNode(node n) {
+		innerNodes.add(n);
+		n.setClusterId(innerNodes.size()-1);
+		num_nodes++;
+	}
+	
+	public void addBdryNode(node n) {
+		bdryPoints.add(n);
+		n.setClusterId(bdryPoints.size()-1);
+		num_nodes++;
+	}
 	
 	public int getNum_nodes() {
 		return num_nodes;
@@ -129,6 +150,7 @@ public class cluster{
 					}
 					
 					visited.get(currentNode.getClusterNum())[currentNode.getClusterId()] = true;
+					unvisited.remove();
 				}
 				
 
@@ -188,6 +210,7 @@ public class cluster{
 						}
 					}
 					visited[currentNode.getClusterId()] = true;
+					unvisited.remove();
 //					current
 				}
 				
@@ -228,4 +251,18 @@ public class cluster{
 			return (o1.getTempTime() < o2.getTempTime()) ? -1:1;
 		}
 	};
+	
+	public String toString() {
+		String s= "";
+		s+= "CLUSTER "+Integer.toString(num)+" ==================================\n";
+		s += "number of inner nodes: "+Integer.toString(innerNodes.size())+"\n";
+		s += "number of bdry nodes: "+Integer.toString(bdryPoints.size())+"\n";
+		s+= "Bdry nodes: ";
+		for(node n: bdryPoints) s+= Integer.toString(n.getId()) + " ";
+		s+= "\nInner nodes: ";
+		for(node n: innerNodes) s+= Integer.toString(n.getId()) + " ";
+		
+		s+= "\n";
+		return s;
+	}
 }
