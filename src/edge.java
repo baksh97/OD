@@ -5,7 +5,7 @@ public class edge {
 	private double dist;
 	
 	public double getTime_from_speed(double currentTime){
-		int k = (int) (currentTime/ main.timeWindow);
+		int k = (int) ((currentTime-main.startTime)/ main.timeWindow);
 		double timeWindow = main.timeWindow;
 //		return speed[index][0];/////////////correct this
 		double t = currentTime;

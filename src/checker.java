@@ -7,6 +7,11 @@ import java.util.List;
 
 public class checker
 {
+//	public static void main ( String args [])
+//	{
+//		System.out.println(Double.POSITIVE_INFINITY-5);
+//	}
+	
 	public static void main ( String args [])
 	{
 		BufferedReader br1 = null,br2=null,br3=null;

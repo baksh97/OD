@@ -139,22 +139,38 @@ public class cluster{
 				while(!unvisited.isEmpty()) {
 					currentNode = unvisited.peek();
 					System.out.println("currentNode: "+currentNode.getStringId());
+					
 					for(edge e: currentNode.getEdges()) {									//for direct edges from the current node
+						
 						node n1 = nodes.get(e.getOtherEnd(n.getId()));
+						
 						if(n1.getClusterNum()!= n.getClusterNum()) {		//check only if node belongs to other cluster; otherwise if it is inner node no need to check and if it is a bdry pt belonging to same cluster, it will be checked below
 							if(!visited.get(n1.getClusterNum())[n1.getClusterId()]){
+								
 								double timeForEdge = e.getTime_from_speed(currentTime+currentNode.getTempTime());
+								
 								if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
 									n1.setTempTime(currentNode.getTempTime()+timeForEdge);
+									
+//									cluster otherclust = clusters.get(n1.getClusterNum());		//if a node from other cluster is updated, all other bdry points from that cluster are checked
+//									for(node bnode: otherclust.getBdry_points()) {
+//										double timeForintraBdry = otherclust.getWeightedTime(currentTime+n1.getTempTime(), n1.getClusterId(), -1, bnode.getClusterId(), otherclust.getTimeIntraCluster());
+//										
+//										if(timeForintraBdry+n1.getTempTime() < bnode.getTempTime()) {
+//											bnode.setTempTime(timeForintraBdry+n1.getTempTime());
+//										}
+//									}
 								}
 							}
 						}
 					}
 					
 					for(node n1: bdryPoints) {									//for indirect routes from the currentNode to the other bdry points belonging to same cluster
+						
 						if(!visited.get(n1.getClusterNum())[n1.getClusterId()]) {	//why waste time if already visited
 //							int timeIndex = (int)((currentTime+currentNode.getTempTime())/main.timeWindow);
 							double timeForEdge = getWeightedTime(currentTime+currentNode.getTempTime(), n.getClusterId(), -1, n1.getClusterId(), timeIntraCluster);
+							
 							if(n.getTempTime() +  timeForEdge< n1.getTempTime()) {
 								n1.setTempTime(currentNode.getTempTime() + timeForEdge);
 							}
@@ -196,7 +212,10 @@ public class cluster{
 			System.err.println("Some error in combining inner and bdry nodes");
 		}
 		
-		for(double currentTime=0;currentTime<main.endTime;currentTime+= main.timeWindow) {
+		for(double currentTime=main.startTime;currentTime<main.endTime;currentTime+= main.timeWindow) {
+			
+			System.out.println("Current Time: "+currentTime);
+			
 //			System.out.println("intra for time: "+currentTime+"==================");
 			List<List<Double>> timeForCurrentTime = new ArrayList<>();
 			for(node n: allNodes){			//setting times for this node in the cluster
@@ -217,7 +236,7 @@ public class cluster{
 				}
 				
 				currentNode = n;
-				currentNode.setTempTime(0);
+//				currentNode.setTempTime(0);
 
 				
 //				System.out.println("error checking: printing unvisited:");
@@ -248,7 +267,7 @@ public class cluster{
 						
 						if(n1.getClusterNum() == num && !visited[n1.getClusterId()]){
 							
-							double timeForEdge = e.getTime_from_speed(currentTime);
+							double timeForEdge = e.getTime_from_speed(currentTime + currentNode.getTempTime());
 							
 //							System.out.println("time to travel edge b/w "+(currentNode.getId()+1) + " and "+(n1.getId()+1)+" is: "+timeForEdge);
 							
@@ -266,7 +285,7 @@ public class cluster{
 				
 				List<Double> timeForCurrentNode = new ArrayList<>();
 				for(node n1: allNodes) {
-					timeForCurrentNode.add(n1.getTempTime());
+					timeForCurrentNode.add(n1.getTempTime()+currentTime);
 //					n1.setTempTime(0);
 				}
 				timeForCurrentTime.add(timeForCurrentNode);
