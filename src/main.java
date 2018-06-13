@@ -9,7 +9,7 @@ public class main {
 	int clusterNums[];
 	static List<cluster> clusters;
 	
-	static double timeWindow = 10, endTime=100;
+	static double timeWindow, endTime, startTime;
 	static int num_clusters;
 	
 	double findTimeBetweenNodesAtTime(node n1,node n2, double currentTime) {
@@ -47,12 +47,27 @@ public class main {
 	}
 	
 	public static void prepareData(data d) {
-		cluster[] clustersArray = new cluster[d.getNum_clusters()];
 		
-		System.out.println("num clusters: "+d.getNum_clusters());
+//		System.out.println("nodes are:\n");
+//		for(node n: d.getNodes()) {
+//			System.out.println((n.getId()+1)+":\t");
+//			for(edge e: n.getEdges()) {
+//				System.out.println((e.getStart()+1)+","+(e.getEnd()+1));
+//			}
+//			System.out.println();
+//		}
+		
+		endTime = d.getEndTime();
+		startTime = d.getStartTime();
+		timeWindow = (int)((endTime-startTime)/d.getNum_intervals());
+		num_clusters = d.getNum_clusters();
+		
+		cluster[] clustersArray = new cluster[num_clusters];
+		
+		System.out.println("num clusters: "+num_clusters);
 		
 		int count=0;
-		for(int i=0;i<d.getNum_clusters();i++) {
+		for(int i=0;i<num_clusters;i++) {
 			clustersArray[i] = new cluster();
 			clustersArray[i].setNum(count++);
 		}
@@ -86,12 +101,17 @@ public class main {
 		
 		
 		for(cluster c: clusters) {
-			System.out.println(c.toString());
+//			System.out.println(c.toString());
 			
 			c.setTimeIntraCluster(d.getNodes());
 		}
 		
 		for(cluster c: clusters)c.setTimeBtwBdry(clusters, d.getNodes());
+		
+		
+		for(cluster c: clusters) {
+			System.out.println(c.toString());
+		}
 		
 	}
 	

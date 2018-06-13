@@ -11,7 +11,7 @@ public class edge {
 		double t = currentTime;
 		double d = dist;
 //		int k = findIndex(t, speed, 0, speed[0].length - 1);
-		System.out.println("index: "+k);
+//		System.out.println("index: "+k);
 		double t_;
 		try {
 			t_ = t + d / speed[k];			
@@ -32,7 +32,7 @@ public class edge {
 				break;
 			}
 		}
-		System.out.println("Final time: "+t_);
+//		System.out.println("Final time: "+t_);
 		return t_;
 	}
 	

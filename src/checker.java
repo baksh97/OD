@@ -79,7 +79,9 @@ public class checker
 			
 			System.out.println(r.toString());
 			
-			main.prepareData(r);
+			main.prepareData(r);		//processes the data to make clusters
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

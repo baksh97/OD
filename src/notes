@@ -9,4 +9,12 @@ Points to note:
 		.	.	.
 		.	.	.
 		.	.	.
-	
+	5- clusters file format is
+		num_clusters
+		cluster_num of node1
+		cluster_num of node2
+		.
+		.
+		.
+		.
+	6- 

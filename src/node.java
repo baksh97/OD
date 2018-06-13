@@ -22,7 +22,7 @@ public class node
 	}
 
 	public double getTempTime() {
-		return tempTime;
+		return Math.round(tempTime * 100.0) / 100.0;
 	}
 
 	public void setTempTime(double tempTime) {
@@ -64,5 +64,9 @@ public class node
 	public void setClusterNum(int clusterNum) {
 		this.clusterNum = clusterNum;
 	}
-
+	
+	public String getStringId() {
+		String s=Integer.toString(id+1)+"("+Integer.toString(clusterId+1)+")";
+		return s;
+	}
 }
