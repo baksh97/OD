@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.lang.*;
 
 public class checker
 {
@@ -15,14 +16,28 @@ public class checker
 	
 	public static void main ( String args [])
 	{
+		String nodes_adjacencyFileName = args[0];
+		int parts = Integer.parseInt(args[1]);
+		String speedsFileName = args[2];
+		try{
+			Process p = Runtime.getRuntime().exec("gpmetis "+nodes_adjacencyFileName+" "+args[1]);
+			p.waitFor();
+		}
+		catch(Exception e){
+			System.err.println("error in compiling");
+		}
+
+		String clustersFileName = nodes_adjacencyFileName+".part."+args[1];
+
+
 		BufferedReader br1 = null,br2=null,br3=null;
 		data r = new data();
 
 		try {
 			String s1,s2,s3;
-			br1 = new BufferedReader(new FileReader("C:\\Users\\E0302940\\eclipse-workspace\\OD\\src\\nodes_adjacency"));	//the nodes and adjacency file
-			br2 = new BufferedReader(new FileReader("C:\\Users\\E0302940\\eclipse-workspace\\OD\\src\\speeds"));	//the speeds file
-			br3 = new BufferedReader(new FileReader("C:\\Users\\E0302940\\eclipse-workspace\\OD\\src\\clusters"));	//cluster numbering file
+			br1 = new BufferedReader(new FileReader(nodes_adjacencyFileName));	//the nodes and adjacency file
+			br2 = new BufferedReader(new FileReader(speedsFileName));	//the speeds file
+			br3 = new BufferedReader(new FileReader(clustersFileName));	//cluster numbering file
 
 			s1 = br1.readLine();
 			String s[]= s1.split(" ");
@@ -43,7 +58,7 @@ public class checker
 			
 			node nodes[] = new node[num_nodes];
 			
-			int num_clusters = Integer.parseInt(br3.readLine());
+			int num_clusters = parts;
 			r.setNum_clusters(num_clusters);
 			int count=0;
 			while ((s1 = br1.readLine()) != null) {
