@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class checker
 {
@@ -85,8 +86,32 @@ public class checker
 			System.out.println(r.toString());
 			
 			main.prepareData(r);		//processes the data to make clusters
-			
-			
+
+			//...
+
+			Scanner in = new Scanner(System.in);
+//			int num = in.nextInt();
+			while(true) {
+				System.out.println("input query as <nodeID1 nodeID2 time> or input -1 to exit.");
+				int n1 = in.nextInt();
+				if(n1==-1)
+					break;
+				else {
+					int n2 = in.nextInt();
+					double currentTime = in.nextDouble();
+					
+					if(n1 > nodes.length-1 || n2 > nodes.length-1 || n1 < 0 || n2 < 0) {
+						System.err.println("input error!!");
+					}
+					else {
+						System.out.println("time by my method:");
+						System.out.println(main.findTimeBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime));
+						
+						System.out.println("actual time:");
+						System.out.println(actual_time.findTime(nodes[n1], nodes[n2], currentTime, r.getNodes()));
+					}
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

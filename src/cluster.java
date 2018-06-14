@@ -60,18 +60,18 @@ public class cluster{
 	}
 
 	public double getWeightedTime(double currentTime,int id1, int clusterNum ,int id2, Object obj) {
-		
+		double time = currentTime;
 		if(clusterNum!=-1) {
 //			id2 += clusterNum*main.num_clusters;
 			List<List<List<List<Double>>>> times = (List<List<List<List<Double>>>>) obj;
 			
 			double timeWindow = main.timeWindow;
-			int index = (int) (currentTime/timeWindow);
+			int index = (int) (time/timeWindow);
 			
 			double earlierTime = (times.get(index).get(id1).get(clusterNum).get(id2));
 			
-			double weight1 = (timeWindow - currentTime%timeWindow)/timeWindow,
-					weight2 = (currentTime%timeWindow)/timeWindow;
+			double weight1 = (timeWindow - time%timeWindow)/timeWindow,
+					weight2 = (time%timeWindow)/timeWindow;
 			if(index==times.size()-1)
 				return earlierTime;
 			else {
@@ -80,14 +80,16 @@ public class cluster{
 			}
 		}
 		else {
+//			System.out.println("time: "+time);
 			List<List<List<Double>>> times = (List<List<List<Double>>>) obj;
 			double timeWindow = main.timeWindow;
-			int index = (int) (currentTime/timeWindow);
-			
+//			System.out.println();
+			int index = (int) (time/timeWindow);
+//			System.out.println("index for "+time+": "+index);
 			double earlierTime = (times.get(index).get(id1).get(id2));
 			
-			double weight1 = (timeWindow - currentTime%timeWindow)/timeWindow,
-					weight2 = (currentTime%timeWindow)/timeWindow;
+			double weight1 = (timeWindow - time%timeWindow)/timeWindow,
+					weight2 = (time%timeWindow)/timeWindow;
 			if(index==times.size()-1)
 				return earlierTime;
 			else {
@@ -98,22 +100,26 @@ public class cluster{
 
 	}
 
-	public void setTimeBtwBdry(List<cluster> clusters, List<node> nodes) {			//inter cluster bdry
+	public void setTimeBtwBdry(List<node> nodes) {			//inter cluster bdry
 		timeBtwBdry = new ArrayList<>();
 		
-		
-		List<boolean[]> visited = new ArrayList<>();
+		List<cluster> clusters = main.clusters;
+//		System.out.println();
+//		System.out.println("num clusters: "+clusters.size());
+//		System.out.println();
 //		for(boolean[] b: visited) b = new boolean[]
 		node currentNode;		
 		
-		for(double currentTime=0;currentTime<main.endTime;currentTime+= main.timeWindow) {
+		for(double currentTime=main.startTime; currentTime<main.endTime; currentTime+= main.timeWindow) {
 			List<List<List<Double>>> timeForCurrentTime = new ArrayList<>();
 			for(node n: bdryPoints){			//setting times for this node in the cluster
 
 				PriorityQueue<node> unvisited = new PriorityQueue<>(dist_comparator);
-			
+
+				List<boolean[]> visited = new ArrayList<>();
+	
 				for(cluster c : clusters) {
-					boolean cluster_visited[] = new boolean[c.bdryPoints.size()];
+					boolean cluster_visited[] = new boolean[c.getBdry_points().size()];
 					for(node n1: c.bdryPoints) {
 						if(n1!=n)
 							n1.setTempTime(Double.POSITIVE_INFINITY);
@@ -122,7 +128,7 @@ public class cluster{
 						unvisited.add(n1);
 						
 						cluster_visited[n1.getClusterId()]=false;
-						visited.add(cluster_visited);
+						visited.add(c.getNum(), cluster_visited);;
 					}
 				}
 				
@@ -130,28 +136,36 @@ public class cluster{
 //					visited[i] = false;
 //				}
 				
-				currentNode = n;
+//				currentNode = n;
 //				n.setTempTime(0);
-				
-				System.out.println("n: "+currentNode.getStringId());
-				System.out.println();
+//				System.out.println();
+//				System.out.println("n: "+n.getStringId());
+//				System.out.println();
 
 				while(!unvisited.isEmpty()) {
-					currentNode = unvisited.peek();
-					System.out.println("currentNode: "+currentNode.getStringId());
+					currentNode = unvisited.remove();
+					if(currentNode.getTempTime()==Double.POSITIVE_INFINITY) {
+						System.out.println(currentNode.getStringId()+" is not reachable from "+n.getStringId());
+						break;
+					}
+//					System.out.println("\tcurrentNode: "+currentNode.getStringId()+" with temp time: "+currentNode.getTempTime());
 					
 					for(edge e: currentNode.getEdges()) {									//for direct edges from the current node
 						
-						node n1 = nodes.get(e.getOtherEnd(n.getId()));
+						node n1 = nodes.get(e.getEnd());
 						
-						if(n1.getClusterNum()!= n.getClusterNum()) {		//check only if node belongs to other cluster; otherwise if it is inner node no need to check and if it is a bdry pt belonging to same cluster, it will be checked below
+						
+						if(n1.getClusterNum()!= currentNode.getClusterNum()) {		//check only if node belongs to other cluster; otherwise if it is inner node no need to check and if it is a bdry pt belonging to same cluster, it will be checked below
+//							System.out.println("size of visited.get("+n1.getClusterNum()+"): "+visited.get(n1.getClusterNum()).length+" while demanded num is: "+n1.getClusterId()+" from: "+n1.getStringId());
 							if(!visited.get(n1.getClusterNum())[n1.getClusterId()]){
-								
+//								System.out.println("n1 is: "+n1.getStringId());
+		
 								double timeForEdge = e.getTime_from_speed(currentTime+currentNode.getTempTime());
 								
 								if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
 									n1.setTempTime(currentNode.getTempTime()+timeForEdge);
-									
+									unvisited.remove(n1);
+									unvisited.add(n1);
 //									cluster otherclust = clusters.get(n1.getClusterNum());		//if a node from other cluster is updated, all other bdry points from that cluster are checked
 //									for(node bnode: otherclust.getBdry_points()) {
 //										double timeForintraBdry = otherclust.getWeightedTime(currentTime+n1.getTempTime(), n1.getClusterId(), -1, bnode.getClusterId(), otherclust.getTimeIntraCluster());
@@ -165,20 +179,26 @@ public class cluster{
 						}
 					}
 					
-					for(node n1: bdryPoints) {									//for indirect routes from the currentNode to the other bdry points belonging to same cluster
-						
+					for(node n1: clusters.get(currentNode.getClusterNum()).getBdry_points()) {									//for indirect routes from the currentNode to the other bdry points belonging to same cluster
+//						System.out.println("n1 to be checked: "+n1.getStringId());
+//						if(visited.get(n1.getClusterNum())[n1.getClusterId()])
+//							System.out.println(n1.getStringId()+" is already visited");
 						if(!visited.get(n1.getClusterNum())[n1.getClusterId()]) {	//why waste time if already visited
 //							int timeIndex = (int)((currentTime+currentNode.getTempTime())/main.timeWindow);
-							double timeForEdge = getWeightedTime(currentTime+currentNode.getTempTime(), n.getClusterId(), -1, n1.getClusterId(), timeIntraCluster);
+//							System.out.println("currentNode.clusterid: "+currentNode.getStringId()+" and n1.clusterid: "+n1.getStringId()+" and timeintracluster.length: "+timeIntraCluster.size());
+							double timeForEdge = getWeightedTime(currentTime+currentNode.getTempTime(), currentNode.getClusterId(), -1, n1.getClusterId(), clusters.get(currentNode.getClusterNum()).getTimeIntraCluster());
 							
-							if(n.getTempTime() +  timeForEdge< n1.getTempTime()) {
+							if(currentNode.getTempTime() +  timeForEdge< n1.getTempTime()) {
 								n1.setTempTime(currentNode.getTempTime() + timeForEdge);
+								unvisited.remove(n1);
+								unvisited.add(n1);
 							}
 						}
 					}
 					
+//					System.out.println("setting visited for: "+currentNode.getClusterNum() + ","+currentNode.getClusterId());
 					visited.get(currentNode.getClusterNum())[currentNode.getClusterId()] = true;
-					unvisited.remove();
+//					unvisited.remove(currentNode);
 				}
 				
 
@@ -186,7 +206,7 @@ public class cluster{
 				for(cluster c: clusters) {
 					List<Double> timeForCluster = new ArrayList<>();
 					for(node n1: c.bdryPoints) {
-						timeForCluster.add(currentTime+n1.getTempTime());
+						timeForCluster.add(n1.getTempTime());
 					}
 					timeForCurrentNode.add(timeForCluster);
 				}
@@ -212,9 +232,9 @@ public class cluster{
 			System.err.println("Some error in combining inner and bdry nodes");
 		}
 		
-		for(double currentTime=main.startTime;currentTime<main.endTime;currentTime+= main.timeWindow) {
+		for(double currentTime=main.startTime; currentTime<main.endTime; currentTime+= main.timeWindow) {
 			
-			System.out.println("Current Time: "+currentTime);
+//			System.out.println("Current Time: "+currentTime);
 			
 //			System.out.println("intra for time: "+currentTime+"==================");
 			List<List<Double>> timeForCurrentTime = new ArrayList<>();
@@ -235,7 +255,7 @@ public class cluster{
 					visited[i] = false;
 				}
 				
-				currentNode = n;
+//				currentNode = n;
 //				currentNode.setTempTime(0);
 
 				
@@ -253,28 +273,31 @@ public class cluster{
 					currentNode = unvisited.peek();
 					
 					if(currentNode.getTempTime()==Double.POSITIVE_INFINITY) {
-//						System.out.println(currentNode.getStringId()+" is not reachable from "+n.getStringId());
+						System.out.println(currentNode.getStringId()+" is not reachable from "+n.getStringId());
 						break;
 					}
 //					System.out.println("current node: "+currentNode.getStringId()+ " with temp time: "+currentNode.getTempTime());
 					
 					for(edge e: currentNode.getEdges()) {
 						
-						node n1 = nodes.get(e.getOtherEnd(currentNode.getId()));
+						node n1 = nodes.get(e.getEnd());
 						
 //						System.out.println("node n1: "+n1.getStringId());
 //						if(visited[n1.getClusterId()])System.out.println("already visited it");
 						
-						if(n1.getClusterNum() == num && !visited[n1.getClusterId()]){
-							
-							double timeForEdge = e.getTime_from_speed(currentTime + currentNode.getTempTime());
-							
-//							System.out.println("time to travel edge b/w "+(currentNode.getId()+1) + " and "+(n1.getId()+1)+" is: "+timeForEdge);
-							
-							if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
-//								System.out.print("updatig temp time of: "+n1.getStringId()+" from "+n1.getTempTime()+" to: ");
-								n1.setTempTime(currentNode.getTempTime()+timeForEdge);
-//								System.out.println(n1.getTempTime());
+						if(n1.getClusterNum() == num) {
+							if(!visited[n1.getClusterId()]){
+								double timeForEdge = e.getTime_from_speed(currentTime + currentNode.getTempTime());
+								
+//								System.out.println("time to travel edge b/w "+currentNode.getStringId() + " and "+n1.getStringId()+" at "+ (currentTime + currentNode.getTempTime())+ "is: "+timeForEdge);
+								
+								if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
+//									System.out.print("updatig temp time of: "+n1.getStringId()+" from "+n1.getTempTime()+" to: ");
+									n1.setTempTime(currentNode.getTempTime()+timeForEdge);
+//									unvisited.remove(n1);
+//									unvisited.add(n1);
+//									System.out.println(n1.getTempTime());
+								}	
 							}
 						}
 					}
@@ -285,7 +308,7 @@ public class cluster{
 				
 				List<Double> timeForCurrentNode = new ArrayList<>();
 				for(node n1: allNodes) {
-					timeForCurrentNode.add(n1.getTempTime()+currentTime);
+					timeForCurrentNode.add(n1.getTempTime());
 //					n1.setTempTime(0);
 				}
 				timeForCurrentTime.add(timeForCurrentNode);
@@ -331,46 +354,51 @@ public class cluster{
 		s+= "\nInner nodes: ";
 		for(node n: innerNodes) s+= Integer.toString(n.getId()+1) + " ";
 		
-		s+= "\n";
-		
-		if(!timeIntraCluster.isEmpty()) {
-			for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.timeWindow) {
-				
-				List<List<Double>> timeForCurrentTime = timeIntraCluster.get((int)(currentTime/main.timeWindow));
-				s += "Time: "+Double.toString(currentTime)+"\n";
-				for(node n: bdryPoints) s+= "\t"+Integer.toString(n.getId()+1)+"("+Integer.toString(n.getClusterId()+1)+")";
-				for(node n: innerNodes) s+= "\t"+Integer.toString(n.getId()+1)+"("+Integer.toString(n.getClusterId()+1)+")";
-				s+="\n";
-				
-				boolean writeInnerNow = false;
-				for(int i=0,j=0;i<timeForCurrentTime.size();i++,j++) {
-					if(j==bdryPoints.size() && i==j) {
-						writeInnerNow = true;
-						j=0;
-					}
+		s+= "\n\n";
+		s+= "Time for Intra Cluster Nodes:\n";
+		if(timeIntraCluster!=null) {
+			if(!timeIntraCluster.isEmpty()) {
+				for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.timeWindow) {
 					
-					if(writeInnerNow)
-						s += Integer.toString(innerNodes.get(j).getId()+1) + "(" + Integer.toString(innerNodes.get(j).getClusterId()+1)+"):" + "\t";
-					else
-						s += Integer.toString(bdryPoints.get(j).getId()+1) + "(" + Integer.toString(bdryPoints.get(j).getClusterId()+1)+")" + "\t";
-					
-					for(double time: timeForCurrentTime.get(i))
-						s += Double.toString(time) + "\t";
+					List<List<Double>> timeForCurrentTime = timeIntraCluster.get((int)(currentTime/main.timeWindow));
+					s += "Time: "+Double.toString(currentTime)+"\n";
+					for(node n: bdryPoints) s+= "\t"+Integer.toString(n.getId()+1)+"("+Integer.toString(n.getClusterId()+1)+")";
+					for(node n: innerNodes) s+= "\t"+Integer.toString(n.getId()+1)+"("+Integer.toString(n.getClusterId()+1)+")";
 					s+="\n";
+					
+					boolean writeInnerNow = false;
+					for(int i=0,j=0;i<timeForCurrentTime.size();i++,j++) {
+						if(j==bdryPoints.size() && i==j) {
+							writeInnerNow = true;
+							j=0;
+						}
+						
+						if(writeInnerNow)
+							s += Integer.toString(innerNodes.get(j).getId()+1) + "(" + Integer.toString(innerNodes.get(j).getClusterId()+1)+"):" + "\t";
+						else
+							s += Integer.toString(bdryPoints.get(j).getId()+1) + "(" + Integer.toString(bdryPoints.get(j).getClusterId()+1)+")" + "\t";
+						
+						for(double time: timeForCurrentTime.get(i))
+							s += Double.toString(time) + "\t";
+						s+="\n";
+					}
 				}
 			}
 		}
 		
-		if(!timeBtwBdry.isEmpty()) {
-			for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.timeWindow) {
-				
-				List<List<List<Double>>> timeForCurrentTime = timeBtwBdry.get((int)(currentTime/main.timeWindow));
-				s += "Time: "+Double.toString(currentTime)+"\n";
-				
-				List<cluster> c = main.clusters;
-				
-				for(cluster c1: c) {
-					if(c1.getNum()!= num) {
+		s+= "\n\n";
+		s+= "Time b/w Bdry Points:\n";
+
+		if(timeBtwBdry!=null) {
+			if(!timeBtwBdry.isEmpty()) {
+				for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.timeWindow) {
+					
+					List<List<List<Double>>> timeForCurrentTime = timeBtwBdry.get((int)(currentTime/main.timeWindow));
+					s += "Time: "+Double.toString(currentTime)+"\n";
+					
+					List<cluster> c = main.clusters;
+					
+					for(cluster c1: c) {
 						s+= "\tCluster: "+c1.getNum()+"\n";
 						s+="\t\t";					
 						for(node n2: c1.getBdry_points()) {
@@ -387,27 +415,27 @@ public class cluster{
 						}
 						s+="\n";
 					}
+					
+					
+					s+="\n";
+					
+	//				boolean writeInnerNow = false;
+	//				for(int i=0,j=0;i<timeForCurrentTime.size();i++,j++) {
+	//					if(j==bdryPoints.size() && i==j) {
+	//						writeInnerNow = true;
+	//						j=0;
+	//					}
+	//					
+	//					if(writeInnerNow)
+	//						s += Integer.toString(innerNodes.get(j).getId()+1) + "(" + Integer.toString(innerNodes.get(j).getClusterId()+1)+"):" + "\t";
+	//					else
+	//						s += Integer.toString(bdryPoints.get(j).getId()+1) + "(" + Integer.toString(bdryPoints.get(j).getClusterId()+1)+")" + "\t";
+	//					
+	//					for(double time: timeForCurrentTime.get(i))
+	//						s += Double.toString(time) + "\t";
+	//					s+="\n";
+	//				}
 				}
-				
-				
-				s+="\n";
-				
-//				boolean writeInnerNow = false;
-//				for(int i=0,j=0;i<timeForCurrentTime.size();i++,j++) {
-//					if(j==bdryPoints.size() && i==j) {
-//						writeInnerNow = true;
-//						j=0;
-//					}
-//					
-//					if(writeInnerNow)
-//						s += Integer.toString(innerNodes.get(j).getId()+1) + "(" + Integer.toString(innerNodes.get(j).getClusterId()+1)+"):" + "\t";
-//					else
-//						s += Integer.toString(bdryPoints.get(j).getId()+1) + "(" + Integer.toString(bdryPoints.get(j).getClusterId()+1)+")" + "\t";
-//					
-//					for(double time: timeForCurrentTime.get(i))
-//						s += Double.toString(time) + "\t";
-//					s+="\n";
-//				}
 			}
 		}
 		return s;

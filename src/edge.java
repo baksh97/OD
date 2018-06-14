@@ -6,6 +6,7 @@ public class edge {
 	
 	public double getTime_from_speed(double currentTime){
 		int k = (int) ((currentTime-main.startTime)/ main.timeWindow);
+//		System.out.println("k:" +k);
 		double timeWindow = main.timeWindow;
 //		return speed[index][0];/////////////correct this
 		double t = currentTime;
@@ -33,7 +34,7 @@ public class edge {
 			}
 		}
 //		System.out.println("Final time: "+t_);
-		return t_;
+		return t_-currentTime;
 	}
 	
 	public int getStart() {
