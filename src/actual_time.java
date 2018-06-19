@@ -30,10 +30,14 @@ public class actual_time {
 				if(!visited[otherNode.getId()]) {
 					double timeForEdge = e.getTime_from_speed(currentTime + currentNode.getTempTime());
 					
-					if(currentNode.getTempTime() + timeForEdge < otherNode.getTempTime()) {
-						otherNode.setTempTime(currentNode.getTempTime() + timeForEdge);
-						unvisited.remove(otherNode);
-						unvisited.add(otherNode);
+					if(timeForEdge!=-1){
+					// 	return
+					// }
+						if(currentNode.getTempTime() + timeForEdge < otherNode.getTempTime()) {
+							otherNode.setTempTime(currentNode.getTempTime() + timeForEdge);
+							unvisited.remove(otherNode);
+							unvisited.add(otherNode);
+						}
 					}
 				}
 			}

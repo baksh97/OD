@@ -27,3 +27,19 @@ Points to note:
 		2
 		2
 		1
+		
+	7- run the program like:
+		make
+		java checker <nodesFile> <parts> <speedsFile>
+	
+	8- 2 variable show the time memory accuracy relationship:
+		 - store_time_diff:
+		 		can be changed in config.properties file.
+		 		represents the time gap after which the time taken are stores between intra nodes and between the bdry points.
+		 		lesser the value, more is space required and more time required to construct the times table but more accurate result and vice versa.
+		 - parts:
+		 		given as input argument number 2 (first is nodes file)
+		 		represents the number of clusters into which the nodes are divided.
+		 		very low(~1) and very high(~number of nodes) values behave similarly... high memory and more time to construct the tables requirements but less time to answer
+		 		medium values.. less memory and less time to construct tables but more time to answer the queries.
+		 		

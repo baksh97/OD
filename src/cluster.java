@@ -65,13 +65,13 @@ public class cluster{
 //			id2 += clusterNum*main.num_clusters;
 			List<List<List<List<Double>>>> times = (List<List<List<List<Double>>>>) obj;
 			
-			double timeWindow = main.timeWindow;
-			int index = (int) (time/timeWindow);
+			double timeDiff = main.storeTimeDiff;
+			int index = (int) (time/timeDiff);
 			
 			double earlierTime = (times.get(index).get(id1).get(clusterNum).get(id2));
 			
-			double weight1 = (timeWindow - time%timeWindow)/timeWindow,
-					weight2 = (time%timeWindow)/timeWindow;
+			double weight1 = (timeDiff - time%timeDiff)/timeDiff,
+					weight2 = (time%timeDiff)/timeDiff;
 			if(index==times.size()-1)
 				return earlierTime;
 			else {
@@ -82,14 +82,14 @@ public class cluster{
 		else {
 //			System.out.println("time: "+time);
 			List<List<List<Double>>> times = (List<List<List<Double>>>) obj;
-			double timeWindow = main.timeWindow;
+			double timeDiff = main.storeTimeDiff;
 //			System.out.println();
-			int index = (int) (time/timeWindow);
-//			System.out.println("index for "+time+": "+index);
+			int index = (int) (time/timeDiff);
+			// System.out.println("index for "+time+": "+index);
 			double earlierTime = (times.get(index).get(id1).get(id2));
 			
-			double weight1 = (timeWindow - time%timeWindow)/timeWindow,
-					weight2 = (time%timeWindow)/timeWindow;
+			double weight1 = (timeDiff - time%timeDiff)/timeDiff,
+					weight2 = (time%timeDiff)/timeDiff;
 			if(index==times.size()-1)
 				return earlierTime;
 			else {
@@ -110,7 +110,7 @@ public class cluster{
 //		for(boolean[] b: visited) b = new boolean[]
 		node currentNode;		
 		
-		for(double currentTime=main.startTime; currentTime<main.endTime; currentTime+= main.timeWindow) {
+		for(double currentTime=main.startTime; currentTime<main.endTime; currentTime+= main.storeTimeDiff) {
 			List<List<List<Double>>> timeForCurrentTime = new ArrayList<>();
 			for(node n: bdryPoints){			//setting times for this node in the cluster
 
@@ -161,11 +161,12 @@ public class cluster{
 //								System.out.println("n1 is: "+n1.getStringId());
 		
 								double timeForEdge = e.getTime_from_speed(currentTime+currentNode.getTempTime());
-								
-								if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
-									n1.setTempTime(currentNode.getTempTime()+timeForEdge);
-									unvisited.remove(n1);
-									unvisited.add(n1);
+								if(timeForEdge!=-1){
+									if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
+										n1.setTempTime(currentNode.getTempTime()+timeForEdge);
+										unvisited.remove(n1);
+										unvisited.add(n1);
+									}
 //									cluster otherclust = clusters.get(n1.getClusterNum());		//if a node from other cluster is updated, all other bdry points from that cluster are checked
 //									for(node bnode: otherclust.getBdry_points()) {
 //										double timeForintraBdry = otherclust.getWeightedTime(currentTime+n1.getTempTime(), n1.getClusterId(), -1, bnode.getClusterId(), otherclust.getTimeIntraCluster());
@@ -186,7 +187,9 @@ public class cluster{
 						if(!visited.get(n1.getClusterNum())[n1.getClusterId()]) {	//why waste time if already visited
 //							int timeIndex = (int)((currentTime+currentNode.getTempTime())/main.timeWindow);
 //							System.out.println("currentNode.clusterid: "+currentNode.getStringId()+" and n1.clusterid: "+n1.getStringId()+" and timeintracluster.length: "+timeIntraCluster.size());
-							double timeForEdge = getWeightedTime(currentTime+currentNode.getTempTime(), currentNode.getClusterId(), -1, n1.getClusterId(), clusters.get(currentNode.getClusterNum()).getTimeIntraCluster());
+							double timeForEdge=Double.POSITIVE_INFINITY;
+							if(currentTime + currentNode.getTempTime() < main.endTime)
+								 timeForEdge = getWeightedTime(currentTime+currentNode.getTempTime(), currentNode.getClusterId(), -1, n1.getClusterId(), clusters.get(currentNode.getClusterNum()).getTimeIntraCluster());
 							
 							if(currentNode.getTempTime() +  timeForEdge< n1.getTempTime()) {
 								n1.setTempTime(currentNode.getTempTime() + timeForEdge);
@@ -220,7 +223,6 @@ public class cluster{
 		
 		timeIntraCluster = new ArrayList<>();
 		
-		
 		boolean visited[] = new boolean[num_nodes];
 		
 		
@@ -232,7 +234,7 @@ public class cluster{
 			System.err.println("Some error in combining inner and bdry nodes");
 		}
 		
-		for(double currentTime=main.startTime; currentTime<main.endTime; currentTime+= main.timeWindow) {
+		for(double currentTime=main.startTime; currentTime<main.endTime; currentTime+= main.storeTimeDiff) {
 			
 //			System.out.println("Current Time: "+currentTime);
 			
@@ -290,10 +292,11 @@ public class cluster{
 								double timeForEdge = e.getTime_from_speed(currentTime + currentNode.getTempTime());
 								
 //								System.out.println("time to travel edge b/w "+currentNode.getStringId() + " and "+n1.getStringId()+" at "+ (currentTime + currentNode.getTempTime())+ "is: "+timeForEdge);
-								
-								if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
-//									System.out.print("updatig temp time of: "+n1.getStringId()+" from "+n1.getTempTime()+" to: ");
-									n1.setTempTime(currentNode.getTempTime()+timeForEdge);
+								if(timeForEdge!=-1){
+									if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
+		//									System.out.print("updatig temp time of: "+n1.getStringId()+" from "+n1.getTempTime()+" to: ");
+										n1.setTempTime(currentNode.getTempTime()+timeForEdge);
+									}
 //									unvisited.remove(n1);
 //									unvisited.add(n1);
 //									System.out.println(n1.getTempTime());
@@ -358,9 +361,9 @@ public class cluster{
 		s+= "Time for Intra Cluster Nodes:\n";
 		if(timeIntraCluster!=null) {
 			if(!timeIntraCluster.isEmpty()) {
-				for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.timeWindow) {
+				for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.storeTimeDiff) {
 					
-					List<List<Double>> timeForCurrentTime = timeIntraCluster.get((int)(currentTime/main.timeWindow));
+					List<List<Double>> timeForCurrentTime = timeIntraCluster.get((int)(currentTime/main.storeTimeDiff));
 					s += "Time: "+Double.toString(currentTime)+"\n";
 					for(node n: bdryPoints) s+= "\t"+Integer.toString(n.getId()+1)+"("+Integer.toString(n.getClusterId()+1)+")";
 					for(node n: innerNodes) s+= "\t"+Integer.toString(n.getId()+1)+"("+Integer.toString(n.getClusterId()+1)+")";
@@ -391,9 +394,9 @@ public class cluster{
 
 		if(timeBtwBdry!=null) {
 			if(!timeBtwBdry.isEmpty()) {
-				for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.timeWindow) {
+				for(double currentTime = main.startTime;currentTime<main.endTime;currentTime += main.storeTimeDiff) {
 					
-					List<List<List<Double>>> timeForCurrentTime = timeBtwBdry.get((int)(currentTime/main.timeWindow));
+					List<List<List<Double>>> timeForCurrentTime = timeBtwBdry.get((int)(currentTime/main.storeTimeDiff));
 					s += "Time: "+Double.toString(currentTime)+"\n";
 					
 					List<cluster> c = main.clusters;

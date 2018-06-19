@@ -18,7 +18,7 @@ public class edge {
 			t_ = t + d / speed[k];			
 		}
 		catch(Exception e) {
-			System.err.println("Time input is smaller than the starting time.");
+			e.printStackTrace();
 			return -1;
 		}
 
