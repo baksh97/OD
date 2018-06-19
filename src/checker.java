@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 import java.lang.*;
 
@@ -14,8 +15,10 @@ public class checker
 //		System.out.println(Double.POSITIVE_INFINITY-5);
 //	}
 	
-	public static void main ( String args [])
+	public static void main ( String arg [])
 	{
+		
+		String args[] = {"src\\nodes_adjacency","3", "src\\speeds"};
 		String nodes_adjacencyFileName = args[0];
 		int parts = Integer.parseInt(args[1]);
 		String speedsFileName = args[2];
@@ -30,7 +33,7 @@ public class checker
 		String clustersFileName = nodes_adjacencyFileName+".part."+args[1];
 
 
-		BufferedReader br1 = null,br2=null,br3=null;
+		BufferedReader br1 = null,br2=null,br3=null,br4=null;
 		data r = new data();
 
 		try {
@@ -38,6 +41,13 @@ public class checker
 			br1 = new BufferedReader(new FileReader(nodes_adjacencyFileName));	//the nodes and adjacency file
 			br2 = new BufferedReader(new FileReader(speedsFileName));	//the speeds file
 			br3 = new BufferedReader(new FileReader(clustersFileName));	//cluster numbering file
+			
+			
+			br4 = new BufferedReader(new FileReader("src\\config.properties"));		//reading the properties file, config file path will be same
+			Properties prop = new Properties();
+			prop.load(br4);
+			main.storeTimeDiff = Integer.parseInt(prop.getProperty("store_time_diff"));
+			
 
 			s1 = br1.readLine();
 			String s[]= s1.split(" ");

@@ -3,6 +3,11 @@ import java.util.List;
 public class data{
 	private int num_nodes,num_edges;
 	private int num_clusters;
+	private List<node> nodes;
+	private int num_vehicles;
+	private int num_intervals;
+	private double endTime,startTime=0;
+//	private double storeTimeDiff;
 	
 	public void setNum_clusters(int num_clusters) {
 		this.num_clusters = num_clusters;
@@ -23,11 +28,6 @@ public class data{
 	public void setNum_nodes(int num_nodes) {
 		this.num_nodes = num_nodes;
 	}
-
-	private List<node> nodes;
-	private int num_vehicles;
-	private int num_intervals;
-	private double endTime,startTime=0;
 	
 	public int getNum_nodes() {
 		return nodes.size();

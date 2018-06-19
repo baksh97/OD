@@ -8,7 +8,7 @@ public class main {
 	
 	static List<cluster> clusters;
 	
-	static double timeWindow, endTime, startTime;
+	static double timeWindow, endTime, startTime,storeTimeDiff;
 	static int num_clusters;
 	
 	static double findTimeBetweenNodesAtTime(node n1,node n2, double currentTime) {
@@ -75,50 +75,9 @@ public class main {
 				}
 			}
 		}
-			
-			
-			
-//			for(node n: bdryPointsCluster1) {
-//				double timeFromn1ToBdry = cluster1.getWeightedTime(currentTime, n1.getClusterId(), -1, n.getClusterId(), cluster1.getTimeIntraCluster());
-//				if(n1.isBdryPt()) {
-//					double timeIntraBdryfromn1 = cluster1.getWeightedTime(currentTime, n1.getClusterId(), cluster1.getNum(), n.getClusterId(), cluster1.getTimeBtwBdry());
-//					if(timeIntraBdryfromn1 < timeFromn1ToBdry)timeFromn1ToBdry
-//				}
-//			}
-//		}
-//		
-//		
-//		
-//		double minTime = Double.POSITIVE_INFINITY;
-//		for(node bdryPt: bdryPointsCluster1) {
-//			
-//			double t1 = cluster1.getWeightedTime(currentTime,n1.getClusterId(), -1 ,bdryPt.getClusterId(), cluster1.getTimeIntraCluster());
-//				
-//			for(node otherBdryPt: bdryPointsCluster2) {
-//				double t2 = cluster1.getWeightedTime(currentTime+t1, bdryPt.getClusterId(),cluster2.getNum() ,otherBdryPt.getClusterId(), cluster1.getTimeBtwBdry()); //this is wrong as number of bdry pts can be different for each cluster
-//				
-//				double t3 = cluster2.getWeightedTime(currentTime+t1+t2, otherBdryPt.getClusterId(), -1, n2.getClusterId(), cluster2.getTimeIntraCluster());
-//				
-//				if(minTime > currentTime + t1 + t2 + t3) {
-//					minTime = currentTime + t1  +t2 + t3;
-//				}
-//			}
-//		}
-//		
-//		return minTime;
 	}
 	
 	public static void prepareData(data d) {
-		
-//		System.out.println("nodes are:\n");
-//		for(node n: d.getNodes()) {
-//			System.out.println((n.getId()+1)+":\t");
-//			for(edge e: n.getEdges()) {
-//				System.out.println((e.getStart()+1)+","+(e.getEnd()+1));
-//			}
-//			System.out.println();
-//		}
-		
 		endTime = d.getEndTime();
 		startTime = d.getStartTime();
 		timeWindow = (int)((endTime-startTime)/d.getNum_intervals());
@@ -126,17 +85,12 @@ public class main {
 		
 		cluster[] clustersArray = new cluster[num_clusters];
 		
-//		System.out.println("num clusters: "+num_clusters);
 		
 		int count=0;
 		for(int i=0;i<num_clusters;i++) {
 			clustersArray[i] = new cluster();
 			clustersArray[i].setNum(count++);
 		}
-		
-//		for(cluster c: clustersArray) {
-//			System.out.println(c.getNum());
-//		}
 		
 		for(node n: d.getNodes()) {
 			int clusterNum = n.getClusterNum();
@@ -164,7 +118,6 @@ public class main {
 		
 		for(cluster c: clusters) {
 			c.setTimeIntraCluster(d.getNodes());
-//			System.out.println(c.toString());
 		}
 		
 		for(cluster c: clusters)c.setTimeBtwBdry( d.getNodes());
