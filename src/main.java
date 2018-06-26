@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -122,10 +125,27 @@ public class main {
 		
 		for(cluster c: clusters)c.setTimeBtwBdry( d.getNodes());
 		
-		
-		for(cluster c: clusters) {
-			System.out.println(c.toString());
+		try {
+			FileWriter writer = new FileWriter("clustersDescrption.txt");
+			for(cluster c: clusters) {
+				writer.write(c.toString());
+			}
+			writer.close();
+//			BufferedWriter br = new BufferedWriter(new FileWriter("clustersDescription.csv"));
+//			StringBuilder sb = new StringBuilder();
+//			for (String element : array) {
+//			 sb.append(element);
+//			 sb.append(",");
+//			}
+//
+//			br.write(sb.toString);
+//			br.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		
 		
 	}
 	

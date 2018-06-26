@@ -78,7 +78,7 @@ public class data{
 		for(node n: nodes) {
 			s+= Integer.toString(n.getClusterNum())+"\t";
 			for(edge e:n.getEdges()) {
-				s+= Integer.toString(e.getEnd()) + " ";				
+				s+= Integer.toString(e.getEnd()+1) + " ";				
 			}
 			
 //			s+="number of neighbours: "+Integer.toString(n.getEdges().size())+"\n";

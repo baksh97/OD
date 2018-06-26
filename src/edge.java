@@ -5,7 +5,13 @@ public class edge {
 	private double dist;
 	
 	public double getTime_from_speed(double currentTime){
+//		if(currentTime > main.endTime)
+//			return -1;
 		int k = (int) ((currentTime-main.startTime)/ main.timeWindow);
+		
+		if(k >= speed.length){
+			k=speed.length-1;
+		}
 //		System.out.println("k:" +k);
 		double timeWindow = main.timeWindow;
 //		return speed[index][0];/////////////correct this
@@ -13,24 +19,26 @@ public class edge {
 		double d = dist;
 //		int k = findIndex(t, speed, 0, speed[0].length - 1);
 //		System.out.println("index: "+k);
-		double t_;
-		try {
-			t_ = t + d / speed[k];			
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			return -1;
-		}
+		double t_ = t + d / speed[k];
+//		try {
+					
+//		}
+//		catch(Exception e) {
+//			e.printStackTrace();
+////			return -1;
+//		}
 
 		while(k != speed.length-1) {
-			if(t_ > timeWindow*(k+1)) {
-				d-= speed[k] * (timeWindow*(k+1) - t);
-				t = timeWindow*(k+1);
-				t_ = t + d/speed[k+1];
-				k++;
-			}
-			else {
-				break;
+			if(k!=speed.length-1){
+				if(t_ > timeWindow*(k+1)) {
+					d-= speed[k] * (timeWindow*(k+1) - t);
+					t = timeWindow*(k+1);
+					t_ = t + d/speed[k+1];
+					k++;
+				}
+				else {
+					break;
+				}
 			}
 		}
 //		System.out.println("Final time: "+t_);

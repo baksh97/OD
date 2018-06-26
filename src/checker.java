@@ -10,27 +10,34 @@ import java.lang.*;
 
 public class checker
 {
-//	public static void main ( String args [])
+//	public static void main ( String arguments [])
 //	{
 //		System.out.println(Double.POSITIVE_INFINITY-5);
 //	}
 	
-	public static void main ( String args [])
+	public static void main ( String arguments [])
 	{
-		
-		// String args[] = {"src\\nodes_adjacency","3", "src\\speeds"};
-		String nodes_adjacencyFileName = args[0];
-		int parts = Integer.parseInt(args[1]);
-		String speedsFileName = args[2];
-		try{
-			Process p = Runtime.getRuntime().exec("gpmetis "+nodes_adjacencyFileName+" "+args[1]);
-			p.waitFor();
+//		String[] arguments = {"nodes_adjacency1","4", "speeds1","clusters1"};
+		String nodes_adjacencyFileName = arguments[0];
+		int parts = Integer.parseInt(arguments[1]);
+		String speedsFileName = arguments[2];
+		String clustersFileName="";
+		if(arguments.length == 3){
+			try{
+				System.out.println("tryinh gpmetis");
+				Process p = Runtime.getRuntime().exec("gpmetis "+nodes_adjacencyFileName+" "+arguments[1]);
+				System.out.println("done here");
+				p.waitFor();
+			}
+			catch(Exception e){
+				System.out.println("error in compiling");
+				return;
+			}
+			clustersFileName = nodes_adjacencyFileName+".part."+arguments[1];
 		}
-		catch(Exception e){
-			System.err.println("error in compiling");
+		else{
+			clustersFileName = arguments[3];
 		}
-
-		String clustersFileName = nodes_adjacencyFileName+".part."+args[1];
 
 
 		BufferedReader br1 = null,br2=null,br3=null,br4=null;
@@ -83,6 +90,8 @@ public class checker
 				
 				for(String neighbour: neighbours_s) {
 					s2 = br2.readLine();
+//					if(s2=="" || s2== null)
+//						break;
 //					System.out.println("s2: "+s2);
 					s = s2.split(" ");
 					
@@ -129,11 +138,18 @@ public class checker
 						System.err.println("input error!!");
 					}
 					else {
+
 						System.out.println("time by my method:");
+						long startTime = System.currentTimeMillis();
 						System.out.println(main.findTimeBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime));
+						long endTime = System.currentTimeMillis();
+						System.out.println("\tTook "+(endTime - startTime) + " ms");
 						
 						System.out.println("actual time:");
+						startTime = System.currentTimeMillis();
 						System.out.println(actual_time.findTime(nodes[n1], nodes[n2], currentTime, r.getNodes()));
+						endTime = System.currentTimeMillis();
+						System.out.println("\tTook "+(endTime - startTime) + " ms");
 					}
 				}
 			}
