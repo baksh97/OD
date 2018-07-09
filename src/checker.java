@@ -152,7 +152,7 @@ public class checker
 
 						System.out.println("time by my method:");
 						long startTime = System.currentTimeMillis();
-						System.out.println(main.findTimeBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime)) ;//+ " and route is: " + main.getRoutesBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime).toString());
+						System.out.println(main.findTimeBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime)+ " and route is: " + main.getRoutesBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime).toString());
 						long endTime = System.currentTimeMillis();
 						System.out.println("\tTook "+(endTime - startTime) + " ms");
 						
