@@ -15,9 +15,36 @@ public class main {
 	static int num_clusters;
 	
 	
+	static double getTimeForRoute(List<node> nodes , double currentTime){
+		double time = 0;
+		node n = nodes.get(0);
+		if(nodes.size()==1){
+			return time;
+		}
+		else{
+			double neighTime= 0;
+			for(edge e: n.getEdges()){
+				if(e.getEnd() == nodes.get(1).getId()){
+					neighTime = e.getTime_from_speed(currentTime);
+				}
+			}
+			
+			if(neighTime == 0){
+				System.err.println("not neigbours");
+				return -1;
+			}
+			
+			nodes.remove(0);
+			return neighTime + getTimeForRoute(nodes , currentTime + neighTime);
+		}
+		
+//		return time;
+	}
+	
+	
 	private static List<Integer> getRouteIntraCluster(node n1, node n2, double currentTime) {
 		
-//		System.out.println("route intracluster called for nodes: "+n1.getStringId() + ", "+n2.getStringId() + " at time: "+currentTime);
+		System.out.println("route intracluster called for nodes: "+n1.getStringId() + ", "+n2.getStringId() + " at time: "+currentTime);
 		
 		if(n1.getId() == n2.getId())
 			return null;
@@ -29,7 +56,7 @@ public class main {
 		double time = currentTime;
 		int index = (int) (time/storeTimeDiff);
 		
-		System.out.println("index : "+ index);
+//		System.out.println("index : "+ index);
 		
 		node earlierParent = (routesIntraCluster.get(index).get(n1.getClusterId()).get(n2.getClusterId()));
 		
@@ -80,7 +107,7 @@ public class main {
 	
 	private static List<Integer> getRouteInterCluster(node n1 , node n2, double currentTime){
 		
-//		System.out.println("route intercluster called for nodes: "+n1.getStringId() + ", "+n2.getStringId()  + " at time: "+currentTime);
+		System.out.println("route intercluster called for nodes: "+n1.getStringId() + ", "+n2.getStringId()  + " at time: "+currentTime);
 
 		
 		if(n1.getId() == n2.getId())
@@ -111,6 +138,7 @@ public class main {
 		
 //		System.out.println("getRouteBtwNodesAtTime called for nodes: "+n1.getStringId() + ", "+n2.getStringId()  + " at time: "+currentTime);
 
+		List<Integer> overallRoute = new ArrayList<>();
 		
 		cluster cluster1 = clusters.get(n1.getClusterNum());
 		cluster cluster2 = clusters.get(n2.getClusterNum());
@@ -119,7 +147,7 @@ public class main {
 			
 			System.out.println(n1.getStringId() + " and " + n2.getStringId() +" belong to same cluster");
 			
-			return getRouteIntraCluster(n1,n2,currentTime);
+			overallRoute = getRouteIntraCluster(n1,n2,currentTime);
 		}
 		else {
 
@@ -129,13 +157,12 @@ public class main {
 			if(n1.isBdryPt()) {
 				if(n2.isBdryPt()) {			//both are bdry points
 //					return cluster1.getWeightedTime(currentTime, n1.getClusterId(), n2.getClusterNum(), n2.getClusterId(), cluster1.getTimeBtwBdry());
-//					System.out.println(n1.getStringId() + " is bdry pt and " + n2.getStringId() +" is bdry pt");
-					return getRouteInterCluster(n1, n2, currentTime);
-
+					System.out.println(n1.getStringId() + " is bdry pt and " + n2.getStringId() +" is bdry pt");
+//					return getRouteInterCluster(n1, n2, currentTime);
+					overallRoute = getRouteInterCluster(n1, n2, currentTime);
 				}
 				else {	//n1 bdry but n2 not
 //					System.out.println(n1.getStringId() + " is bdry pt and " + n2.getStringId() +" is not");
-					List<Integer> overallRoute = new ArrayList<>();
 					node min_node = null;
 					double min_time = Double.POSITIVE_INFINITY, min_time_N1ToBdry2 = Double.POSITIVE_INFINITY;
 					for(node n: bdryPointsCluster2) {
@@ -154,13 +181,14 @@ public class main {
 					}
 					overallRoute.addAll(getRouteInterCluster(n1, min_node, currentTime));
 					overallRoute.addAll(getRouteIntraCluster(min_node, n2, currentTime + min_time_N1ToBdry2));
-					return overallRoute;
+////					overallRoute.add(n2.getId()+1);
+//					return overallRoute;
 				}
 			}
 			else {
 				if(n2.isBdryPt()) {		//n2 is bdry but n1 not
-//					System.out.println(n1.getStringId() + " is not bdry pt and " + n2.getStringId() +" is bdry pt");
-					List<Integer> overallRoute = new ArrayList<>();
+					System.out.println(n1.getStringId() + " is not bdry pt and " + n2.getStringId() +" is bdry pt");
+//					List<Integer> overallRoute = new ArrayList<>();
 					double min_time = Double.POSITIVE_INFINITY, min_time_N1ToBdry1 = Double.POSITIVE_INFINITY;
 					node min_node = null;
 
@@ -179,13 +207,13 @@ public class main {
 					}
 					overallRoute.addAll(getRouteIntraCluster(n1, min_node, currentTime));
 					overallRoute.addAll(getRouteInterCluster(min_node, n2, currentTime + min_time_N1ToBdry1));
-					return overallRoute;
+//					return overallRoute;
 				}
 				else {			//neither is a bdry points
-//					System.out.println(n1.getStringId() + " and " + n2.getStringId() +" are not bdry pts");
+					System.out.println(n1.getStringId() + " and " + n2.getStringId() +" are not bdry pts");
 					double min_time = Double.POSITIVE_INFINITY, min_time_N1ToBdry1 = Double.POSITIVE_INFINITY, min_time_Bdry1ToBdry2 = Double.POSITIVE_INFINITY, min_time_Bdry1ToBdry2_temp = Double.POSITIVE_INFINITY;
 					node min_node_cluster1 = null, min_node_cluster2 = null, min_node_cluster2_temp = null;
-					List<Integer> overallRoute = new ArrayList<>();
+//					List<Integer> overallRoute = new ArrayList<>();
 
 					for(node n: bdryPointsCluster1) {
 						double timeFromN1ToBdry1 = cluster1.getWeightedTime(currentTime, n1.getClusterId(), -1, n.getClusterId(), cluster1.getTimeIntraCluster());
@@ -219,10 +247,13 @@ public class main {
 					overallRoute.addAll(getRouteInterCluster(min_node_cluster1, min_node_cluster2, currentTime + min_time_N1ToBdry1));
 //					System.out.println("calling route intracluster called for nodes: "+min_node_cluster2.getStringId() + ", "+n2.getStringId());
 					overallRoute.addAll(getRouteIntraCluster(min_node_cluster2, n2, currentTime + min_time_N1ToBdry1 + min_time_Bdry1ToBdry2));
-					return overallRoute;
+//					return overallRoute;
 				}
 			}
 		}
+		
+		overallRoute.add(n2.getId()+1);
+		return overallRoute;
 	}
 
 	

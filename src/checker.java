@@ -135,14 +135,32 @@ public class checker
 			//...
 
 			Scanner in = new Scanner(System.in);
-//			int num = in.nextInt();
 			while(true) {
 				System.out.println("input query as <nodeID1 nodeID2 time> or input -1 to exit.");
-				int n1 = in.nextInt();
-				if(n1==-1)
+				int n = in.nextInt();
+				if(n==-1)
 					break;
+				else if(n == 1){
+					
+					List<node> routeNodes = new ArrayList<>();
+					
+					while(true){
+						int n1 = in.nextInt() - 1;
+						if(n1 == -2)
+							break;
+						else{
+							routeNodes.add(nodes[n1]);
+						}
+					}
+					
+					double time = in.nextDouble();
+					
+					System.out.println("time for this route: "+ main.getTimeForRoute(routeNodes,time));
+				}
 				else {
-					int n2 = in.nextInt();
+					int n1 = in.nextInt() - 1;
+					int n2 = in.nextInt() - 1;
+					
 					double currentTime = in.nextDouble();
 					
 					if(n1 > nodes.length-1 || n2 > nodes.length-1 || n1 < 0 || n2 < 0) {
