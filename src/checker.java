@@ -9,35 +9,15 @@ import java.util.Scanner;
 import java.lang.*;
 
 public class checker
-{
-//	public static void main ( String arguments [])
-//	{
-//		System.out.println(Double.POSITIVE_INFINITY-5);
-//	}
-	
+{	
 	public static void main ( String arguments [])
 	{
-//		String[] arguments = {"nodes_adjacency1","4", "speeds1","clusters1"};
+//		String[] arguments = {"src\\nodes_adjacency5X5","4", "src\\speeds5X5"};
 		String nodes_adjacencyFileName = arguments[0];
 		int parts = Integer.parseInt(arguments[1]);
 		String speedsFileName = arguments[2];
 		String clustersFileName="";
-		if(arguments.length == 3){
-			try{
-				System.out.println("tryinh gpmetis");
-				Process p = Runtime.getRuntime().exec("gpmetis "+nodes_adjacencyFileName+" "+arguments[1]);
-				System.out.println("done here");
-				p.waitFor();
-			}
-			catch(Exception e){
-				System.out.println("error in compiling");
-				return;
-			}
-			clustersFileName = nodes_adjacencyFileName+".part."+arguments[1];
-		}
-		else{
-			clustersFileName = arguments[3];
-		}
+		
 
 
 		BufferedReader br1 = null,br2=null,br3=null,br4=null;
@@ -47,7 +27,6 @@ public class checker
 			String s1,s2,s3;
 			br1 = new BufferedReader(new FileReader(nodes_adjacencyFileName));	//the nodes and adjacency file
 			br2 = new BufferedReader(new FileReader(speedsFileName));	//the speeds file
-			br3 = new BufferedReader(new FileReader(clustersFileName));	//cluster numbering file
 			
 			
 			br4 = new BufferedReader(new FileReader("config.properties"));		//reading the properties file, config file path will be same
@@ -56,15 +35,18 @@ public class checker
 			main.storeTimeDiff = Integer.parseInt(prop.getProperty("store_time_diff"));
 			
 
-			s1 = br1.readLine();
+			s1 = br1.readLine().trim();
 			String s[]= s1.split(" ");
 			int num_nodes = Integer.parseInt(s[0]);
-			int num_edges = Integer.parseInt(s[1]);
+//			int num_edges = Integer.parseInt(s[1]);
 			
-			r.setNum_edges(num_edges);
+//			r.setNum_edges(num_edges);
 			r.setNum_nodes(num_nodes);
 			
-			s2 = br2.readLine();
+			
+			
+			s2 = br2.readLine().trim();
+//			System.out.println("s2: "+s2);
 			s = s2.split(" ");
 			int num_intervals = Integer.parseInt(s[0]);
 			double end_time = Double.parseDouble(s[1]);
@@ -79,17 +61,14 @@ public class checker
 			r.setNum_clusters(num_clusters);
 			int count=0;
 			while ((s1 = br1.readLine()) != null) {
-				s3 = br3.readLine();
-//				System.out.println("s1: "+s1 + ", s3: "+s3);
-
-				int clusternum = Integer.parseInt(s3);
+				s1 = s1.trim();
 				
 				String[] neighbours_s = s1.split(" ");
 				
 				nodes[count] = new node();
 				
 				for(String neighbour: neighbours_s) {
-					s2 = br2.readLine();
+					s2 = br2.readLine().trim();
 //					if(s2=="" || s2== null)
 //						break;
 //					System.out.println("s2: "+s2);
@@ -110,10 +89,42 @@ public class checker
 					
 					nodes[count].addEdge(e);
 					nodes[count].setId(count);
-					nodes[count].setClusterNum(clusternum);
+//					nodes[count].addNeighbour(Integer.parseInt(neighbour)-1);
 				}
 				count++;
 			}
+			
+			nodes_adjacencyFileName = nodes_adjacencyFileName+"checked";
+			check_directed_nodes_file.checkFile(nodes,nodes_adjacencyFileName);
+
+			if(arguments.length == 3){
+				try{
+					System.out.println("running gpmetis");
+					Process p = Runtime.getRuntime().exec("gpmetis "+nodes_adjacencyFileName+" "+arguments[1]);
+					p.waitFor();
+					System.out.println("gpmetis done");
+				}
+				catch(Exception e){
+					System.out.println("error in compiling");
+					return;
+				}
+				clustersFileName = nodes_adjacencyFileName+".part."+arguments[1];
+			}
+			else{
+				clustersFileName = arguments[3];
+			}
+			
+			br3 = new BufferedReader(new FileReader(clustersFileName));	//cluster numbering file
+
+			
+			
+			for(int i=0;i<num_nodes;i++){
+				s3 = br3.readLine().trim();
+				int clusternum = Integer.parseInt(s3);
+				nodes[i].setClusterNum(clusternum);
+			}
+			
+			
 			
 			r.setNodes(Arrays.asList(nodes));
 			
@@ -141,7 +152,7 @@ public class checker
 
 						System.out.println("time by my method:");
 						long startTime = System.currentTimeMillis();
-						System.out.println(main.findTimeBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime));
+						System.out.println(main.findTimeBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime)) ;//+ " and route is: " + main.getRoutesBetweenNodesAtTime(nodes[n1], nodes[n2], currentTime).toString());
 						long endTime = System.currentTimeMillis();
 						System.out.println("\tTook "+(endTime - startTime) + " ms");
 						

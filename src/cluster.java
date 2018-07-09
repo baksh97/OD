@@ -9,7 +9,9 @@ public class cluster{
 	private List<node> bdryPoints = new ArrayList<>();
 	private List<node> innerNodes = new ArrayList<>();
 	private List<List<List<Double>>> timeIntraCluster;
+	private List<List<List<node>>> routeIntraCluster;
 	private List<List<List<List<Double>>>> timeBtwBdry;
+	private List<List<List<List<node>>>> routeBtwBdry;
 
 	public int getNum() {
 		return num;
@@ -92,14 +94,18 @@ public class cluster{
 
 	public void setTimeBtwBdry(List<node> nodes) {			//inter cluster bdry
 		timeBtwBdry = new ArrayList<>();
+		routeBtwBdry = new ArrayList<>();
 		
 		List<cluster> clusters = main.clusters;
 		node currentNode;		
 		
 		for(double currentTime=main.startTime; currentTime<main.endTime; currentTime+= main.storeTimeDiff) {
 			List<List<List<Double>>> timeForCurrentTime = new ArrayList<>();
+			List<List<List<node>>> routeForCurrentTime = new ArrayList<>();
+			
 			for(node n: bdryPoints){			//setting times for this node in the cluster
 
+				
 				PriorityQueue<node> unvisited = new PriorityQueue<>(dist_comparator);
 				int total_visited = 0;
 				List<boolean[]> visited = new ArrayList<>();
@@ -107,6 +113,7 @@ public class cluster{
 				for(cluster c : clusters) {
 					boolean cluster_visited[] = new boolean[c.getBdry_points().size()];
 					for(node n1: c.bdryPoints) {
+						n1.setParent(null);
 						if(n1!=n)
 							n1.setTempTime(Double.POSITIVE_INFINITY);
 						else
@@ -140,6 +147,9 @@ public class cluster{
 								if(timeForEdge + currentTime + currentNode.getTempTime() < main.endTime){
 									if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
 										n1.setTempTime(currentNode.getTempTime()+timeForEdge);
+										
+										//updating parent
+										n1.setParent(currentNode);
 										unvisited.remove(n1);
 										unvisited.add(n1);
 									}
@@ -155,6 +165,8 @@ public class cluster{
 							if(currentTime + currentNode.getTempTime() + timeForEdge < main.endTime){
 								if(currentNode.getTempTime() +  timeForEdge< n1.getTempTime()) {
 									n1.setTempTime(currentNode.getTempTime() + timeForEdge);
+									
+									n1.setParent(currentNode);
 									unvisited.remove(n1);
 									unvisited.add(n1);
 								}
@@ -167,22 +179,31 @@ public class cluster{
 				
 
 				List<List<Double>> timeForCurrentNode = new ArrayList<>();				
+				List<List<node>> routeForCurrentNode = new ArrayList<>();
+				
 				for(cluster c: clusters) {
 					List<Double> timeForCluster = new ArrayList<>();
+					List<node> routeForCluster = new ArrayList<>();
+					
 					for(node n1: c.bdryPoints) {
 						timeForCluster.add(n1.getTempTime());
+						routeForCluster.add(n1.getParent());
 					}
 					timeForCurrentNode.add(timeForCluster);
+					routeForCurrentNode.add(routeForCluster);
 				}
 				timeForCurrentTime.add(timeForCurrentNode);
+				routeForCurrentTime.add(routeForCurrentNode);
 			}
 			timeBtwBdry.add(timeForCurrentTime);
+			routeBtwBdry.add(routeForCurrentTime);
 		}
 	}
 	
 	public void setTimeIntraCluster(List<node> nodes) {
 		
 		timeIntraCluster = new ArrayList<>();
+		routeIntraCluster = new ArrayList<>();
 		
 		boolean visited[] = new boolean[num_nodes];
 		
@@ -201,11 +222,14 @@ public class cluster{
 			
 //			System.out.println("intra for time: "+currentTime+"==================");
 			List<List<Double>> timeForCurrentTime = new ArrayList<>();
+			List<List<node>> routeForCurrentTime = new ArrayList<>();
+			
 			for(node n: allNodes){			//setting times for this node in the cluster
 
 				PriorityQueue<node> unvisited = new PriorityQueue<>(dist_comparator);
 				int total_visited = 0;
 				for(node n1 :allNodes) {
+					n1.setParent(null);
 					if(n1!=n)
 						n1.setTempTime(Double.POSITIVE_INFINITY);
 					else
@@ -232,11 +256,11 @@ public class cluster{
 					System.err.println("unvisited is empty at the starting itself");
 				}
 				
-				System.out.println("\n\nDoing for : "+n.getStringId());
+//				System.out.println("\n\nDoing for : "+n.getStringId());
 				
 				while(!unvisited.isEmpty()) {
 					currentNode = unvisited.peek();
-					System.out.println("Current Node: "+currentNode.getStringId());
+//					System.out.println("Current Node: "+currentNode.getStringId());
 					if(currentNode.getTempTime()==Double.POSITIVE_INFINITY) {
 						System.out.println(currentNode.getStringId()+" is not reachable from "+n.getStringId());
 						break;
@@ -251,18 +275,20 @@ public class cluster{
 						
 						node n1 = nodes.get(e.getEnd());
 						
-						System.out.println("other end of edge n1: "+n1.getStringId());
+//						System.out.println("other end of edge n1: "+n1.getStringId());
 //						if(visited[n1.getClusterId()])System.out.println("already visited it");
 						
 						if(n1.getClusterNum() == num) {
 							if(!visited[n1.getClusterId()]){
 								double timeForEdge = e.getTime_from_speed(currentTime + currentNode.getTempTime());
 								
-								System.out.println("time to travel edge b/w "+currentNode.getStringId() + " and "+n1.getStringId()+" at "+ (currentTime + currentNode.getTempTime())+ "is: "+timeForEdge);
+//								System.out.println("time to travel edge b/w "+currentNode.getStringId() + " and "+n1.getStringId()+" at "+ (currentTime + currentNode.getTempTime())+ "is: "+timeForEdge);
 								if(timeForEdge + currentTime + currentNode.getTempTime() < main.endTime){
 									if(currentNode.getTempTime() + timeForEdge < n1.getTempTime()) {
 		//									System.out.print("updatig temp time of: "+n1.getStringId()+" from "+n1.getTempTime()+" to: ");
 										n1.setTempTime(currentNode.getTempTime()+timeForEdge);
+										
+										n1.setParent(currentNode);
 									}
 									unvisited.remove(n1);
 									unvisited.add(n1);
@@ -272,7 +298,7 @@ public class cluster{
 						}
 					}
 					
-					System.out.println(currentNode.getStringId()+" is currently visited with total visited: "+Integer.toString(total_visited));
+//					System.out.println(currentNode.getStringId()+" is currently visited with total visited: "+Integer.toString(total_visited));
 					
 					visited[currentNode.getClusterId()] = true;
 					unvisited.remove();
@@ -281,14 +307,27 @@ public class cluster{
 				}
 				
 				List<Double> timeForCurrentNode = new ArrayList<>();
+				List<node> routeForCurrentNode = new ArrayList<>();
+				
 				for(node n1: allNodes) {
 					timeForCurrentNode.add(n1.getTempTime());
+					routeForCurrentNode.add(n1.getParent());
 //					n1.setTempTime(0);
 				}
 				timeForCurrentTime.add(timeForCurrentNode);
+				routeForCurrentTime.add(routeForCurrentNode);
 			}
 			timeIntraCluster.add(timeForCurrentTime);
+			routeIntraCluster.add(routeForCurrentTime);
 		}
+	}
+
+	public List<List<List<node>>> getRouteIntraCluster() {
+		return routeIntraCluster;
+	}
+
+	public List<List<List<List<node>>>> getRouteBtwBdry() {
+		return routeBtwBdry;
 	}
 
 	public List<List<List<List<Double>>>> getTimeBtwBdry() {

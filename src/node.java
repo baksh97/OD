@@ -8,10 +8,21 @@ public class node
 	private boolean isBdryPt = false;		//whether the node is a bdry point or not
 	private List<edge> edges = new ArrayList<>();		//list of edges originating from the no
 	private double tempTime;		//temp variable used to store the time values while applying dijsktra's
+	private List<Integer> neighbours = new ArrayList<>();
+	
+	private node parent;
 //	
 //	node(){
 //		
 //	}
+	
+	public node getParent() {
+		return parent;
+	}
+
+	public void setParent(node parent) {
+		this.parent = parent;
+	}
 	
 	public boolean isBdryPt() {
 		return isBdryPt;
@@ -39,6 +50,7 @@ public class node
 	
 	public void addEdge(edge e) {
 		edges.add(e);
+		neighbours.add(e.getEnd());
 	}
 
 	public int getId() {
@@ -68,5 +80,10 @@ public class node
 	public String getStringId() {
 		String s=Integer.toString(id+1)+"("+Integer.toString(clusterId+1)+")";
 		return s;
+	}
+
+	public boolean isNeighbour(int i) {
+		// TODO Auto-generated method stub
+		return neighbours.contains(i);
 	}
 }
