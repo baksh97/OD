@@ -33,7 +33,8 @@ public class node
 	}
 
 	public double getTempTime() {
-		return Math.round(tempTime * 100.0) / 100.0;
+		return Math.round(tempTime * 10000.0) / 10000.0;
+//		return tempTime;
 	}
 
 	public void setTempTime(double tempTime) {

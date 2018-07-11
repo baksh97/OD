@@ -56,7 +56,7 @@ public class cluster{
 	}
 
 	public double getWeightedTime(double currentTime,int id1, int clusterNum ,int id2, Object obj) {
-		double time = currentTime;
+		double time = currentTime;	//time should not be greater than or equal to endtime
 		if(clusterNum!=-1) {
 			List<List<List<List<Double>>>> times = (List<List<List<List<Double>>>>) obj;
 			
@@ -66,7 +66,7 @@ public class cluster{
 			double earlierTime = (times.get(index).get(id1).get(clusterNum).get(id2));
 			
 			double weight1 = (timeDiff - time%timeDiff)/timeDiff,
-					weight2 = (time%timeDiff)/timeDiff;
+					weight2 = 1- weight1;
 			if(index==times.size()-1)
 				return earlierTime;
 			else {
@@ -104,8 +104,7 @@ public class cluster{
 			List<List<List<node>>> routeForCurrentTime = new ArrayList<>();
 			
 			for(node n: bdryPoints){			//setting times for this node in the cluster
-
-				
+			
 				PriorityQueue<node> unvisited = new PriorityQueue<>(dist_comparator);
 				int total_visited = 0;
 				List<boolean[]> visited = new ArrayList<>();
@@ -121,7 +120,7 @@ public class cluster{
 						unvisited.add(n1);
 						
 						cluster_visited[n1.getClusterId()]=false;
-						visited.add(c.getNum(), cluster_visited);;
+						visited.add(c.getNum(), cluster_visited);
 					}
 				}
 
