@@ -12,7 +12,7 @@ public class checker
 {	
 	public static void main ( String arguments [])
 	{
-//		String[] arguments = {"src\\nodes_adjacency5X5","4", "src\\speeds5X5"};
+//		String[] arguments = {"src\\nodes_adjacency5X5","4", "src\\speeds5X5","src\\nodes_adjacency_new.part.10"};
 		String nodes_adjacencyFileName = arguments[0];
 		int parts = Integer.parseInt(arguments[1]);
 		String speedsFileName = arguments[2];
@@ -38,15 +38,10 @@ public class checker
 			s1 = br1.readLine().trim();
 			String s[]= s1.split(" ");
 			int num_nodes = Integer.parseInt(s[0]);
-//			int num_edges = Integer.parseInt(s[1]);
 			
-//			r.setNum_edges(num_edges);
 			r.setNum_nodes(num_nodes);
 			
-			
-			
 			s2 = br2.readLine().trim();
-//			System.out.println("s2: "+s2);
 			s = s2.split(" ");
 			int num_intervals = Integer.parseInt(s[0]);
 			double end_time = Double.parseDouble(s[1]);
@@ -94,10 +89,12 @@ public class checker
 				count++;
 			}
 			
-			nodes_adjacencyFileName = nodes_adjacencyFileName+"checked";
-			check_directed_nodes_file.checkFile(nodes,nodes_adjacencyFileName);
-
+			
 			if(arguments.length == 3){
+				
+				nodes_adjacencyFileName = nodes_adjacencyFileName+"checked";
+				check_directed_nodes_file.checkFile(nodes,nodes_adjacencyFileName);
+				
 				try{
 					System.out.println("running gpmetis");
 					Process p = Runtime.getRuntime().exec("gpmetis "+nodes_adjacencyFileName+" "+arguments[1]);

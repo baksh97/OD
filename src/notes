@@ -2,23 +2,31 @@ Points to note:
 	1- cluster numbering should start from 0;
 	2- in getWeightedTime, the clusterNumber is used to differentiate between bdry pts of different clusters.
 	3- for every cluster, bdry points should have the starting ids
-	4- speeds file format:
+	
+	4- nodes_adjacency file format:
+		num_nodes
+		<neighbour(1)ID of node1> <neighbour(2)ID of node1> <neighbour(3)ID of node1> . . . <neighbour(num_neighbours_of_node1)ID of node1>
+		<neighbour(1)ID of node2> <neighbour(2)ID of node2> <neighbour(3)ID of node2> . . . <neighbour(num_neighbours_of_node2)ID of node2>
+		.	.	.
+		.	.	.
+		.	.	.
+		<neighbour(1)ID of node(num_nodes)> <neighbour(2)ID of node(num_nodes)> <neighbour(3)ID of node(num_nodes)> . . . <neighbour(num_neighbours_of_node(num_nodes))ID of node(num_nodes)>
+	
+	5- speeds file format:
 		num_intervals	end_time	//start time is assumed 0
 		dist_of_edge speed(1) speed(2) ..... speed(num_intervals)
 		dist_of_edge speed(1) speed(2) ..... speed(num_intervals)
 		.	.	.
 		.	.	.
 		.	.	.
-	5- clusters file format is
-		num_clusters
+	6- clusters file format is
 		cluster_num of node1
 		cluster_num of node2
 		.
 		.
 		.
 		.
-	6- examples clusters file:
-		3
+	7- examples clusters file:
 		1
 		0
 		0
@@ -28,11 +36,11 @@ Points to note:
 		2
 		1
 		
-	7- run the program like:
+	8- run the program like:
 		make
 		java checker <nodesFile> <parts> <speedsFile>
 	
-	8- 2 variable show the time memory accuracy relationship:
+	9- 2 variable show the time memory accuracy relationship:
 		 - store_time_diff:
 		 		can be changed in config.properties file.
 		 		represents the time gap after which the time taken are stores between intra nodes and between the bdry points.
@@ -43,10 +51,10 @@ Points to note:
 		 		very low(~1) and very high(~number of nodes) values behave similarly... high memory and more time to construct the tables requirements but less time to answer
 		 		medium values.. less memory and less time to construct tables but more time to answer the queries.
 		 		
-	9- The input while running the program is of 3 types:
+	10- The input while running the program is of 3 types:
 		- (-1): stops the program
 		
-		- (1 <List of integers representing a route> -1 <currentTime>): you can ask about the time it takes to traverse the route at currentTime. (To see whther the result given in next part is correct or not).
+		- (1 <List of integers representing a route> -1 <currentTime>): you can ask about the time it takes to traverse the route at currentTime. (To see whether the result given in next part is correct or not).
 		
 		- (2 <node id 1> <node id 2> <currentTime>): calculates the min_time from node1 to node2 as well as the route to be taken.
 		
